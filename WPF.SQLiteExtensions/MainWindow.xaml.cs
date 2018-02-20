@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WPF.SQLiteExtensions.Entity;
 
 namespace WPF.SQLiteExtensions
 {
@@ -20,17 +21,25 @@ namespace WPF.SQLiteExtensions
     /// </summary>
     public partial class MainWindow : Window
     {
-        readonly DataAccess _dataAccess = new DataAccess();
+        readonly DataAccess.DataAccess _dataAccess = new DataAccess.DataAccess();
 
         public MainWindow()
         {
             InitializeComponent();
+            // Insert in one query
             InsertAsOne();
+
+            // OR
+            // Insert separated then update references
+            InsertOneByOneAndUpdate();
         }
 
-
-        public void InsertAsOne()
+        /// <summary>
+        /// Insert student with all dependencies in one query
+        /// </summary>
+        private void InsertAsOne()
         {
+            // Create Student with all information
             Student student = new Student()
             {
                 Name = "Jan Novák",
@@ -51,15 +60,20 @@ namespace WPF.SQLiteExtensions
                 }
             };
 
+            // Insert student in database
+            // All tables are filled with correct information
             _dataAccess.InsertWithChildren(student);
 
-            _dataAccess.UpdateWithChildren(student);
-
-            Student students = _dataAccess.GetAllWithChildren<Student>(student.ID);
+            // Get inserted student from database with all references as objects
+            Student students = _dataAccess.GetAllWithChildren<Student>(student.Id);
         }
 
-        public void InsertOneByOneAndUpdate()
+        /// <summary>
+        /// Insert separated Mark, Student, Classroom and Subject, then update references in database
+        /// </summary>
+        private void InsertOneByOneAndUpdate()
         {
+            // Create base objects
             Student student = new Student()
             {
                 Name = "Jan Novák"
@@ -80,29 +94,37 @@ namespace WPF.SQLiteExtensions
                 Value = 1
             };
 
-            _dataAccess.InsertWithChildren(student);
-            _dataAccess.InsertWithChildren(classRoom);
+            // Insert them to database
+            _dataAccess.Insert(student);
+            _dataAccess.Insert(classRoom);
+            _dataAccess.Insert(mark);
+            _dataAccess.Insert(subject);
 
+            // Add student reference to classroom
             student.ClassRoom = classRoom;
+
+            // Update student with references
             _dataAccess.UpdateWithChildren(student);
 
-            _dataAccess.InsertWithChildren(mark);
-            _dataAccess.InsertWithChildren(subject);
 
-            mark.Subject = subject;
+            // Change mark value and set subject
             mark.Value = 2;
+            mark.Subject = subject;
 
+            // Update changed mark with references
             _dataAccess.UpdateWithChildren(mark);
 
-
+            // Add mark to student
             student.Marks = new List<Mark>()
             {
                 mark
             };
 
+            // Update changed student
             _dataAccess.UpdateWithChildren(student);
 
-            Student students = _dataAccess.GetAllWithChildren<Student>(student.ID);
+            // Get inserted student from database with all references as objects
+            Student students = _dataAccess.GetAllWithChildren<Student>(student.Id);
         }
     }
 }

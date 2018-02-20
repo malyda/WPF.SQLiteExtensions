@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SQLite;
 using SQLiteNetExtensions.Attributes;
 
-namespace WPF.SQLiteExtensions
+namespace WPF.SQLiteExtensions.Entity
 {
     /// <summary>
     /// [PrimaryKey, AutoIncrement] Id ihnerits from ATabe

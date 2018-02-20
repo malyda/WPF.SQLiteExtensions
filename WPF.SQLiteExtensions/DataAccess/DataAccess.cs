@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using SQLite;
 using SQLiteNetExtensions.Extensions;
+using WPF.SQLiteExtensions.Entity;
 
-namespace WPF.SQLiteExtensions
+namespace WPF.SQLiteExtensions.DataAccess
 {
     class DataAccess
     {
@@ -29,6 +26,11 @@ namespace WPF.SQLiteExtensions
         public void InsertWithChildren<T>(T table) where T : ATable, new ()
         {
             _db.InsertWithChildren(table, true);
+        }
+
+        public void Insert<T>(T table) where T : ATable, new()
+        {
+            _db.Insert(table);
         }
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace WPF.SQLiteExtensions
 
         public List<T> GetAllWithChildrenBellowId<T>(int id) where T : ATable, new()
         {
-            return _db.GetAllWithChildren<T>().Where(i => i.ID < id).ToList();
+            return _db.GetAllWithChildren<T>().Where(i => i.Id < id).ToList();
         }
     }
 }
